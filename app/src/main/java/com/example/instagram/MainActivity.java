@@ -38,13 +38,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Button Name : Image Button camera
         ImageButton cameraButton = (ImageButton) findViewById(R.id.camera);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent camera = new Intent("android.media.action.IMAGE_CAPTURE");
                 startActivity(camera);
             }
         });
+
     }
 }
