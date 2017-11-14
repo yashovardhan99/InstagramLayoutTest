@@ -1,6 +1,8 @@
 package com.example.instagram;
 
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -24,7 +27,10 @@ import com.google.firebase.auth.PhoneAuthProvider;
 import java.security.AuthProvider;
 import java.util.concurrent.TimeUnit;
 
+import static android.widget.Toast.LENGTH_SHORT;
 import static com.example.instagram.R.id.mobile;
+import static com.example.instagram.R.id.otp;
+import static com.example.instagram.R.id.otp_submit;
 
 public class Login extends AppCompatActivity {
     private String verificationID;
@@ -68,13 +74,23 @@ public class Login extends AppCompatActivity {
                 }
             }
 
-            /*@Override
-            public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+            @Override
+            public void onCodeSent(final String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                 Log.d(TAG,"onCodeSent:"+ s);
                 verificationID = s;
                 resendToken = forceResendingToken;
+                setContentView(R.layout.login_otp);
+                Button submit = (Button)findViewById(R.id.otp_submit);
+                submit.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String code = ((EditText)findViewById(R.id.otp)).getText().toString();
+                        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(s, code);
+                        signIn(credential);
+                    }
+                });
 
-            }*/
+            }
         };
     }
     void startVerify(String mobile)
@@ -92,10 +108,37 @@ public class Login extends AppCompatActivity {
                 mCallbacks);        // OnVerificationStateChangedCallbacks
     }
     private void signIn(PhoneAuthCredential cred){
-        Intent intent = new Intent(this,MainActivity.class);
-        Toast.makeText(Login.this,"Signing In",Toast.LENGTH_SHORT).show();
-        startActivity(intent);
-    };
+        mAuth.signInWithCredential(cred)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful())
+                        {
+                            Toast.makeText(Login.this,"Mobile Number verified. Signing in...", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(Login.this,MainActivity.class);
+                            startActivity(intent);
+                        }
+                        else
+                        {
+                            //sign in failed
+                            Log.w(TAG,"signInWithCredential:failure",task.getException());
+                            if(task.getException() instanceof FirebaseAuthInvalidCredentialsException){
+                                //invalid code
+                                TextView otpm = (TextView)findViewById(R.id.otp_message);
+                                otpm.setText("Invalid OTP. Try again");
+                                otpm.setTextColor(Color.RED);
+                                Button otps = (Button)findViewById(otp_submit);
+                                otps.setText("Try Again");
+                                EditText otp = (EditText)findViewById(R.id.otp);
+                                otp.setText("");
+                                otp.setFocusable(true);
+                            }
+                            else
+                                sorry();
+                        }
+                }
+                });
+    }
     private void invalid()
     {
         Toast.makeText(Login.this,"Invalid Credentials",Toast.LENGTH_LONG).show();
@@ -105,5 +148,16 @@ public class Login extends AppCompatActivity {
         Button sign = (Button)findViewById(R.id.signIn);
         Toast.makeText(Login.this,"We are facing issues at our server. Try again Later or contact the developer.",Toast.LENGTH_LONG).show();
         sign.setText("Try Again");
+    }
+    @Override
+    public void onStart()
+    {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser!=null) {
+            Toast.makeText(this,"Welcome back",LENGTH_SHORT);
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
     }
 }
