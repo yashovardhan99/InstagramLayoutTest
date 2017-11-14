@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        // Button Name : Image Button camera
+        // Enabling Media Capabilities
         ImageButton cameraButton = (ImageButton) findViewById(R.id.camera);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -23,6 +23,16 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent camera = new Intent("android.media.action.IMAGE_CAPTURE");
                 startActivity(camera);
+            }
+        });
+        // Enabling Messaging Capabilities
+        ImageButton msgButton = (ImageButton) findViewById(R.id.message);
+        msgButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent message = new Intent(Intent.ACTION_VIEW);
+                message.setData(Uri.parse("sms:"));
+                startActivity(message);
             }
         });
 
