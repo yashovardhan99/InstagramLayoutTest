@@ -15,7 +15,7 @@
             android:layout_height="40dip"
             android:src="@drawable/logo"
             android:id="@+id/logo"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true" />
         <ImageButton
             android:id="@+id/camera"
             android:layout_width="40dip"
@@ -35,7 +35,6 @@
             android:id="@+id/message"
             android:layout_marginRight="5dip"
             android:layout_alignParentRight="true"
-
             android:background="@null"/>
     </RelativeLayout>
     <HorizontalScrollView
@@ -118,6 +117,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Profile"
+            android:id="@+id/profile"
             android:layout_weight="1"/>
     </LinearLayout>
 </RelativeLayout>
