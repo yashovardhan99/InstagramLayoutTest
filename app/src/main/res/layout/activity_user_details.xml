@@ -14,7 +14,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome, Please provide your basic details..." />
+            android:text="Welcome, Please provide your basic details..."
+            android:id="@+id/welcome"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,7 +30,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Email ID"/>
+            android:text="Email ID: "/>
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
