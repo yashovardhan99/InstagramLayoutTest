@@ -3,6 +3,9 @@ package com.example.instagram;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.net.Uri;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -15,7 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
-
+    static boolean flag = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -23,13 +26,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         // Enabling Media Capabilities
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if(savedInstanceState!=null)
+            flag=savedInstanceState.getBoolean("FLAG");
+
         if(user.getDisplayName().isEmpty())
         {
             Intent intent = new Intent(this,userDetails.class);
             startActivity(intent);
         }
-        else
-            Toast.makeText(this,"Welcome back, "+user.getDisplayName().toString(),Toast.LENGTH_SHORT).show();
+        else if(!flag)
+        {
+            Toast.makeText(this, "Welcome back, " + user.getDisplayName().toString(), Toast.LENGTH_SHORT).show();
+            flag=true;
+        }
         Button profile = (Button)findViewById(R.id.profile);
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,5 +70,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        outState.putBoolean("FLAG",flag);
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
 }

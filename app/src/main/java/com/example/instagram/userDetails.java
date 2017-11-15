@@ -10,6 +10,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,28 +25,36 @@ public class userDetails extends AppCompatActivity {
         setContentView(R.layout.activity_user_details);
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         final FirebaseUser current = mAuth.getCurrentUser();
+        Button submit = (Button)findViewById(R.id.update);
+        final EditText name = (EditText)findViewById(R.id.name);
+        final EditText email = (EditText)findViewById(R.id.email);
+        final EditText mob = (EditText)findViewById(R.id.mobileNo);
+        mob.setText("");
+        email.setText("");
+        name.setText("");
         if(current==null)
         {
             revert();
         }
-        final EditText mob = (EditText)findViewById(R.id.mobileNo);
         if(current.getPhoneNumber().isEmpty())
             revert();
         else
             mob.setText(current.getPhoneNumber());
-        Button submit = (Button)findViewById(R.id.update);
-        final EditText name = (EditText)findViewById(R.id.name);
-        final EditText email = (EditText)findViewById(R.id.email);
         if(!current.getDisplayName().isEmpty())
+        {
+            TextView welcome = (TextView)findViewById(R.id.welcome);
+            welcome.setText("Welcome back "+current.getDisplayName()+"!");
             name.setText(current.getDisplayName());
+            submit.setText("Update");
+        }
         if(!current.getEmail().isEmpty())
             email.setText(current.getEmail());
-        Button app = (Button)findViewById(R.id.back);
+        final Button app = (Button)findViewById(R.id.back);
         app.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(current.getDisplayName().isEmpty())
-                    Toast.makeText(userDetails.this,"Please provide your name first",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(userDetails.this,"Please update your name first",Toast.LENGTH_SHORT).show();
                 else
                 {
                     Intent intent = new Intent(userDetails.this,MainActivity.class);
@@ -59,7 +68,7 @@ public class userDetails extends AppCompatActivity {
             public void onClick(View v) {
                 Intent logout = new Intent(userDetails.this,Login.class);
                 FirebaseAuth.getInstance().signOut();
-                Toast.makeText(userDetails.this,"Successfully Logged out!",Toast.LENGTH_SHORT);
+                Toast.makeText(userDetails.this,"Successfully Logged out!",Toast.LENGTH_SHORT).show();
                 startActivity(logout);
             }
         });
@@ -79,6 +88,7 @@ public class userDetails extends AppCompatActivity {
                             .setDisplayName(name.getText().toString())
                             .build();
                     current.updateProfile(update);
+                    Toast.makeText(userDetails.this,"Your profile has been updated!",Toast.LENGTH_SHORT).show();
                     if(email.getText().length()>5)
                     {
                         current.updateEmail(email.getText().toString());
@@ -91,6 +101,7 @@ public class userDetails extends AppCompatActivity {
                     else
                         if(email.getText().length()>0)
                             Toast.makeText(userDetails.this,"Email Too short",Toast.LENGTH_SHORT).show();
+                    app.performClick();
                 }
             }
         });
