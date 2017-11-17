@@ -17,6 +17,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
+import java.util.regex.Pattern;
+
 public class userDetails extends AppCompatActivity
 {
 
@@ -37,6 +39,7 @@ public class userDetails extends AppCompatActivity
         final EditText name = (EditText)findViewById(R.id.name);
         final EditText email = (EditText)findViewById(R.id.email);
         final EditText mob = (EditText)findViewById(R.id.mobileNo);
+        final TextView resend = (TextView)findViewById(R.id.resend);
         mob.setText("");
         email.setText("");
         name.setText("");
@@ -97,19 +100,42 @@ public class userDetails extends AppCompatActivity
                             .build();
                     current.updateProfile(update);
                     Toast.makeText(userDetails.this,"Your profile has been updated!",Toast.LENGTH_SHORT).show();
-                    if(email.getText().length()>5)
+                    if(Patterns.EMAIL_ADDRESS.matcher(email.getText()).matches() && !current.getEmail().equals(email.getText()))
                     {
                         current.updateEmail(email.getText().toString());
                         if(!current.isEmailVerified())
                         {
                             current.sendEmailVerification();
                             Toast.makeText(userDetails.this, "A verification email has been sent", Toast.LENGTH_SHORT).show();
+                            resend.setText("Verification Email sent");
+                            resend.setTextColor(Color.GREEN);
+                            resend.setClickable(false);
                         }
                     }
                     else
-                        if(email.getText().length()>0)
+                        if(email.getText().length()>0 && email.getText().length()<=5)
                             Toast.makeText(userDetails.this,"Email Too short",Toast.LENGTH_SHORT).show();
-                    app.performClick();
+                }
+            }
+        });
+        resend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(current.isEmailVerified()) {
+                    resend.setText("Email already verified");
+                    resend.setTextColor(Color.DKGRAY);
+                    resend.setClickable(false);
+                }
+                else {
+                    if (current.getEmail().isEmpty()) {
+                        resend.setText("Please enter an Email ID first.");
+                        resend.setTextColor(Color.RED);
+                        resend.setClickable(false);
+                    } else {
+                        current.sendEmailVerification();
+                        resend.setText("Verification Email Sent");
+                        resend.setClickable(false);
+                    }
                 }
             }
         });
