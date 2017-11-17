@@ -24,12 +24,14 @@ public class MainActivity extends AppCompatActivity {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // Enabling Media Capabilities
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
         if(savedInstanceState!=null)
             flag=savedInstanceState.getBoolean("FLAG");
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+       FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user.getDisplayName().isEmpty())
         {
             Intent intent = new Intent(this,userDetails.class);
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(!flag)
         {
-            Toast.makeText(this, "Welcome back, " + user.getDisplayName().toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Welcome back, " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
             flag=true;
         }
         Button profile = (Button)findViewById(R.id.profile);
@@ -76,10 +78,5 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         outState.putBoolean("FLAG",flag);
         super.onSaveInstanceState(outState, outPersistentState);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
     }
 }

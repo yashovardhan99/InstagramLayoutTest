@@ -43,9 +43,13 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        Button submit = (Button)findViewById(R.id.signIn);
-
         mAuth = FirebaseAuth.getInstance();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    Button submit = (Button)findViewById(R.id.signIn);
         submit.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
