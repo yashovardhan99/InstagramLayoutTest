@@ -83,20 +83,20 @@
     </HorizontalScrollView>
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@id/stories"
-        android:layout_above="@id/bottom">
+        android:layout_above="@id/bottom"
+        android:layout_centerVertical="true">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/mainArea">
+        android:layout_height="wrap_content"
+        android:id="@+id/mainArea"
+        android:orientation="vertical">
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:src="@drawable/maincentre"
-            android:id="@+id/image"/>
+            android:id="@+id/image" />
     </LinearLayout>
     </ScrollView>
     <LinearLayout
