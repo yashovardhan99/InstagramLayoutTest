@@ -41,7 +41,8 @@
         android:layout_below="@id/top"
         android:id="@+id/stories"
         android:layout_width="wrap_content"
-        android:layout_height="50dip">
+        android:layout_height="50dip"
+        android:scrollbars="none">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -80,18 +81,24 @@
                 android:text="Story"/>
         </LinearLayout>
     </HorizontalScrollView>
-    <RelativeLayout
-        android:layout_width="wrap_content"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/stories"
+        android:layout_above="@id/bottom">
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/mainArea"
-        android:layout_below="@id/stories">
+        android:id="@+id/mainArea">
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/maincentre"/>
-    </RelativeLayout>
+            android:src="@drawable/maincentre"
+            android:id="@+id/image"/>
+    </LinearLayout>
+    </ScrollView>
     <LinearLayout
         android:layout_alignParentBottom="true"
         android:id="@+id/bottom"
