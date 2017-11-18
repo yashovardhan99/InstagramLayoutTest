@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
@@ -43,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
     String photoPath;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if(savedInstanceState!=null)
@@ -53,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        if(Build.VERSION.SDK_INT>=21)
+            requestVisibleBehind(true);
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user.getDisplayName().isEmpty())
         {
