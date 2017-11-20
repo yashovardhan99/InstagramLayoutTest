@@ -95,9 +95,14 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if (photoFile != null)
                     {
-                        Uri photoURI = FileProvider.getUriForFile(MainActivity.this,"com.example.android.fileprovider",photoFile);
-                        camera.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
-                        startActivityForResult(camera, IMAGE_REQ);
+                        Uri photoURI;
+                        try {
+                            photoURI = FileProvider.getUriForFile(getApplicationContext(), "com.example.android.fileprovider", photoFile);
+                            camera.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
+                            startActivityForResult(camera, IMAGE_REQ);
+                        }catch (Exception e){
+                            Log.w("URI",e);
+                        }
                     }
                 }
             }
@@ -136,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_"+timeStamp+"_";
-        File storageDir = getExternalStoragePublicDirectory(DIRECTORY_PICTURES);
+        File storageDir = getExternalFilesDir(DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName,".jpg",storageDir);
         photoPath = image.getAbsolutePath();
         return image;

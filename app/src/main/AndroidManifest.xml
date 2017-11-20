@@ -18,11 +18,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".userDetails" android:theme="@style/Theme.AppCompat.DayNight.Dialog" android:label="Your Profile"/>
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.example.android.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true"
+            android:readPermission="com.example.android.fileprovider.READ">
                 <meta-data
             android:name="android.support.FILE_PROVIDER_PATHS"
             android:resource="@xml/file_paths"/>
