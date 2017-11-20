@@ -12,17 +12,22 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.PersistableBundle;
 import android.provider.MediaStore;
+import android.support.annotation.LayoutRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -127,13 +132,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onActivityResult(int requestCode,int resultCode,Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode==IMAGE_REQ && resultCode==RESULT_OK)
         {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap)extras.get("data");
-            ((ImageView)findViewById(R.id.image)).setImageBitmap(imageBitmap);
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            File f = new File(photoPath);
+            Uri contentUri = Uri.fromFile(f);
+            mediaScanIntent.setData(contentUri);
+            this.sendBroadcast(mediaScanIntent);
+            setPic(contentUri);
         }
     }
 
@@ -141,9 +148,22 @@ public class MainActivity extends AppCompatActivity {
     {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_"+timeStamp+"_";
-        File storageDir = getExternalFilesDir(DIRECTORY_PICTURES);
+        File storageDir = getExternalStoragePublicDirectory(DIRECTORY_PICTURES);
         File image = File.createTempFile(imageFileName,".jpg",storageDir);
         photoPath = image.getAbsolutePath();
         return image;
+    }
+
+    public void setPic(Uri uri)
+    {
+        LinearLayout lv = (LinearLayout) findViewById(R.id.mainArea);
+        ImageView iv = new ImageView(lv.getContext());
+        iv.setImageURI(uri);
+        iv.setAdjustViewBounds(true);
+        iv.setMaxWidth(lv.getWidth());
+        float scale = getResources().getDisplayMetrics().density;
+        int dp5 = (int) (scale*5 + 0.5f);
+        iv.setPadding(dp5,dp5,dp5,dp5);
+        lv.addView(iv);
     }
 }
