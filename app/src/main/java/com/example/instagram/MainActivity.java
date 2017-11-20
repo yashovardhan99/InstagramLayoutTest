@@ -142,6 +142,10 @@ public class MainActivity extends AppCompatActivity {
             this.sendBroadcast(mediaScanIntent);
             setPic(contentUri);
         }
+        else if(requestCode==IMAGE_REQ && resultCode==RESULT_CANCELED){
+            File f = new File(photoPath);
+            f.delete();
+        }
     }
 
     private File createImageFile() throws IOException
