@@ -5,12 +5,15 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.PersistableBundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.LayoutRes;
 import android.support.v4.app.ActivityCompat;
@@ -33,8 +36,13 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -43,12 +51,30 @@ import java.util.jar.*;
 import static android.os.Environment.DIRECTORY_PICTURES;
 import static android.os.Environment.getExternalStoragePublicDirectory;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     static boolean flag = false;
     static final int IMAGE_REQ = 1;
     String photoPath;
+
+    String themeFile = "Theme_Prefs";
+    boolean dark=true;//default as dark theme
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        try {
+            FileInputStream fis = openFileInput(themeFile);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+            String str = br.readLine();
+            dark = Boolean.valueOf(str);
+            fis.close();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }//reads file for theme data
+        if(!dark)
+            setTheme(R.style.AppTheme_Light);
+        else
+            setTheme(R.style.AppTheme);
+        //Sets theme according to user's preferences
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if(savedInstanceState!=null)
@@ -56,28 +82,46 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onResume()
+    {
+        try {
+            FileInputStream fis = openFileInput(themeFile);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+            String str = br.readLine();
+            dark = Boolean.valueOf(str);
+            fis.close();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }//reads file for theme data
+        if (!dark && getThemeID() == R.style.AppTheme) {
+            setTheme(R.style.AppTheme_Light);
+            recreate();
+        } else if (dark && getThemeID() == R.style.AppTheme_Light)
+        {
+            setTheme(R.style.AppTheme);
+            recreate();
+        }
+        //Sets theme according to user's preferences only if changed
 
-        if(Build.VERSION.SDK_INT>=21)
-            requestVisibleBehind(true);
-    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user.getDisplayName().isEmpty())
+        super.onResume();
+        requestVisibleBehind(true);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();//gets current logged in user
+        if(user.getDisplayName().isEmpty())//if user has not yet set a name
         {
             Intent intent = new Intent(this,userDetails.class);
-            startActivity(intent);
+            startActivity(intent);//calls user details for the user to set their details
         }
-        else if(!flag)
+        else if(!flag)//if user name is set
         {
-            Toast.makeText(this, "Welcome back, " + user.getDisplayName().toString(), Toast.LENGTH_SHORT).show();
-            flag=true;
+            Toast.makeText(this, "Welcome back, " + user.getDisplayName().toString(), Toast.LENGTH_SHORT).show();//welcomes back the user
+            flag=true;//to avoid the toast from re-appearing
         }
-        Button profile = (Button)findViewById(R.id.profile);
+        Button profile = (Button)findViewById(R.id.profile);//profile button
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this,userDetails.class);
-                startActivity(intent);
+                startActivity(intent);//opens User Details activity
             }
         });
 
@@ -86,14 +130,14 @@ public class MainActivity extends AppCompatActivity {
         cameraButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int storePerm = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                int storePerm = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);//checks for permission
                 if(storePerm!= PackageManager.PERMISSION_GRANTED)
                     ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},1);
                 Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 if(camera.resolveActivity(getPackageManager())!=null) {
                     File photoFile = null;
                     try {
-                        photoFile = createImageFile();
+                        photoFile = createImageFile();//tries creating image file
                     } catch (IOException ex) {
                         Toast.makeText(MainActivity.this, "An error Occured!", Toast.LENGTH_LONG).show();
                         Log.w("CAMERA",ex);
@@ -102,9 +146,9 @@ public class MainActivity extends AppCompatActivity {
                     {
                         Uri photoURI;
                         try {
-                            photoURI = FileProvider.getUriForFile(getApplicationContext(), "com.example.android.fileprovider", photoFile);
-                            camera.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
-                            startActivityForResult(camera, IMAGE_REQ);
+                            photoURI = FileProvider.getUriForFile(getApplicationContext(), "com.example.android.fileprovider", photoFile);//creates URI
+                            camera.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);//adds storage location as the newly created file
+                            startActivityForResult(camera, IMAGE_REQ);//starts camera
                         }catch (Exception e){
                             Log.w("URI",e);
                         }
@@ -133,23 +177,24 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode==IMAGE_REQ && resultCode==RESULT_OK)
+        if(requestCode==IMAGE_REQ && resultCode==RESULT_OK)//image taken successfully
         {
-            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);//scans for image
             File f = new File(photoPath);
             Uri contentUri = Uri.fromFile(f);
             mediaScanIntent.setData(contentUri);
             this.sendBroadcast(mediaScanIntent);
-            setPic(contentUri);
+            setPic(contentUri);//sets image just taken into the view
         }
-        else if(requestCode==IMAGE_REQ && resultCode==RESULT_CANCELED){
+        else if(requestCode==IMAGE_REQ && resultCode==RESULT_CANCELED)//if failed
+        {
             File f = new File(photoPath);
-            f.delete();
+            f.delete();//deletes the empty file
         }
     }
 
     private File createImageFile() throws IOException
-    {
+    {//creates image file using date and time stamp
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_"+timeStamp+"_";
         File storageDir = getExternalStoragePublicDirectory(DIRECTORY_PICTURES);
@@ -159,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setPic(Uri uri)
-    {
+    {//sets image to the view
         LinearLayout lv = (LinearLayout) findViewById(R.id.mainArea);
         ImageView iv = new ImageView(lv.getContext());
         iv.setImageURI(uri);
@@ -168,6 +213,23 @@ public class MainActivity extends AppCompatActivity {
         float scale = getResources().getDisplayMetrics().density;
         int dp5 = (int) (scale*5 + 0.5f);
         iv.setPadding(dp5,dp5,dp5,dp5);
-        lv.addView(iv);
+        lv.addView(iv);//to add image view
+    }
+    int getThemeID() {
+        try {
+            Class<?> wrapper = Context.class;
+            Method method = wrapper.getMethod("getThemeResId");
+            method.setAccessible(true);
+            return (Integer) method.invoke(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        onStop();
     }
 }

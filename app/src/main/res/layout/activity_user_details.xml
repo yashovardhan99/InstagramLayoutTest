@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     tools:context="com.example.instagram.userDetails">
     <LinearLayout
-        android:background="#FFFFFF"
         android:layout_width="wrap_content"
         android:orientation="vertical"
         android:layout_height="wrap_content"
@@ -41,8 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Resend Verification email"
-            android:inputType="textUri"
-            android:textColor="#0000FF"
+            android:textColor="#00FFFF"
             android:contextClickable="true"
             android:id="@+id/resend"/>
         <TextView
@@ -63,8 +61,7 @@
         android:text="Submit"
         android:id="@+id/update"
         android:layout_below="@id/details"
-        android:padding="20dip"
-        android:layout_margin="20dip"
+        android:padding="10dip"
         android:layout_centerHorizontal="true"/>
     <Button
         android:layout_width="wrap_content"
@@ -73,13 +70,13 @@
         android:layout_below="@id/update"
         android:id="@+id/logout"
         android:layout_centerHorizontal="true"
-        android:padding="20dip"/>
-    <Button
+        android:padding="10dip"/>
+    <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Back To App"
+        android:text="Dark Mode\t"
+        android:id="@+id/theme"
         android:layout_below="@id/logout"
-        android:layout_centerHorizontal="true"
-        android:padding="20dip"
-        android:id="@+id/back"/>
+        android:padding="20dp"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

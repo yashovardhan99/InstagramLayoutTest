@@ -1,5 +1,6 @@
 package com.example.instagram;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -24,6 +25,10 @@ import com.google.firebase.auth.FirebaseAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.security.AuthProvider;
 import java.util.concurrent.TimeUnit;
 
@@ -32,15 +37,33 @@ import static com.example.instagram.R.id.mobile;
 import static com.example.instagram.R.id.otp;
 import static com.example.instagram.R.id.otp_submit;
 
-public class Login extends AppCompatActivity {
+public class Login extends Activity {
     private String verificationID;
     private PhoneAuthProvider.ForceResendingToken resendToken;
     private static final String TAG = "PhoneAuthActivity";
     private FirebaseAuth mAuth;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
 
+    String themeFile = "Theme_Prefs";
+    boolean dark=true;//default as dark theme
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        try {
+        FileInputStream fis = openFileInput(themeFile);
+        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+        String str = br.readLine();
+        dark = Boolean.valueOf(str);
+        fis.close();
+    } catch (java.io.IOException e) {
+        e.printStackTrace();
+    }//reads file for theme data
+        if(!dark)
+            setTheme(R.style.AppTheme_Light);
+        else
+            setTheme(R.style.AppTheme);
+        //Sets theme according to user's preferences
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
