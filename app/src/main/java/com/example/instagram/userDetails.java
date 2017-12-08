@@ -35,6 +35,8 @@ import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 
 import static android.widget.Toast.LENGTH_SHORT;
+import static com.example.instagram.MainActivity.PREFS_NAME;
+import static com.example.instagram.MainActivity.PREFS_THEME;
 
 public class userDetails extends Activity
 {
@@ -46,7 +48,12 @@ public class userDetails extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        try {
+
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+        if(prefs.contains(PREFS_THEME))
+            dark = prefs.getBoolean(PREFS_THEME,true);
+
+        /*try {
             FileInputStream fis = openFileInput(themeFile);
             BufferedReader br = new BufferedReader(new InputStreamReader(fis));
             String str = br.readLine();
@@ -54,7 +61,7 @@ public class userDetails extends Activity
             fis.close();
         } catch (java.io.IOException e) {
             e.printStackTrace();
-        }
+        }*/
         if(!dark)
             setTheme(R.style.Dialog_Light);
         super.onCreate(savedInstanceState);
@@ -178,15 +185,10 @@ public class userDetails extends Activity
                     themeSel.setText("Light Mode\t");
                     setTheme(R.style.Dialog_Light);
                 }
-                String string = Boolean.toString(dark);
-                try {
-                    FileOutputStream fos = openFileOutput(themeFile, Context.MODE_PRIVATE);
-                    fos.write(string.getBytes());
-                    fos.close();
-                } catch (java.io.IOException e) {
-                    Toast.makeText(userDetails.this,"There was some error saving your preferences. Theme will revert back when app is closed",LENGTH_SHORT).show();
-                    e.printStackTrace();
-                }
+                SharedPreferences prefs = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putBoolean(PREFS_THEME,dark);
+                editor.apply();
                 recreate();
             }
         });

@@ -1,75 +1,59 @@
 package com.example.instagram;
 
-import android.*;
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.PersistableBundle;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.annotation.LayoutRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
-import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
-import java.util.jar.*;
 
 import static android.os.Environment.DIRECTORY_PICTURES;
 import static android.os.Environment.getExternalStoragePublicDirectory;
 
 public class MainActivity extends Activity {
+
+    public static final String PREFS_NAME = "MyPreferences";
+    public static final String PREFS_THEME = "Theme";
+
     static boolean flag = false;
     static final int IMAGE_REQ = 1;
+    static boolean bp = false;//to store back presses
     String photoPath;
-
-    String themeFile = "Theme_Prefs";
     boolean dark=true;//default as dark theme
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        try {
-            FileInputStream fis = openFileInput(themeFile);
-            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-            String str = br.readLine();
-            dark = Boolean.valueOf(str);
-            fis.close();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }//reads file for theme data
+        if(FirebaseAuth.getInstance().getCurrentUser()==null)
+        {
+            Intent login = new Intent(this,Login.class);
+            startActivity(login);
+        }
+
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+        if(prefs.contains(PREFS_THEME))
+            dark = prefs.getBoolean(PREFS_THEME,true);
         if(!dark)
             setTheme(R.style.AppTheme_Light);
         else
@@ -84,25 +68,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume()
     {
-        try {
-            FileInputStream fis = openFileInput(themeFile);
-            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-            String str = br.readLine();
-            dark = Boolean.valueOf(str);
-            fis.close();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }//reads file for theme data
-        if (!dark && getThemeID() == R.style.AppTheme) {
-            setTheme(R.style.AppTheme_Light);
-            recreate();
-        } else if (dark && getThemeID() == R.style.AppTheme_Light)
-        {
-            setTheme(R.style.AppTheme);
-            recreate();
-        }
-        //Sets theme according to user's preferences only if changed
-
         super.onResume();
         requestVisibleBehind(true);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();//gets current logged in user
@@ -113,7 +78,7 @@ public class MainActivity extends Activity {
         }
         else if(!flag)//if user name is set
         {
-            Toast.makeText(this, "Welcome back, " + user.getDisplayName().toString(), Toast.LENGTH_SHORT).show();//welcomes back the user
+            Toast.makeText(this, "Welcome back, " + user.getDisplayName(), Toast.LENGTH_SHORT).show();//welcomes back the user
             flag=true;//to avoid the toast from re-appearing
         }
         Button profile = (Button)findViewById(R.id.profile);//profile button
@@ -167,6 +132,21 @@ public class MainActivity extends Activity {
             }
         });
 
+
+
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+         SharedPreferences.OnSharedPreferenceChangeListener listener =  new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key)
+            {
+                if(key.equals(PREFS_THEME))
+                {
+                    recreate();
+                }
+            }
+        };
+        prefs.registerOnSharedPreferenceChangeListener(listener);
+
     }
     @Override
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
@@ -189,7 +169,8 @@ public class MainActivity extends Activity {
         else if(requestCode==IMAGE_REQ && resultCode==RESULT_CANCELED)//if failed
         {
             File f = new File(photoPath);
-            f.delete();//deletes the empty file
+            if(!f.delete())
+                Toast.makeText(this,"An empty image file was created which couldn't be deleted. You may want to delete the file from your pictures directory",Toast.LENGTH_SHORT).show();//deletes the empty file
         }
     }
 
@@ -215,21 +196,20 @@ public class MainActivity extends Activity {
         iv.setPadding(dp5,dp5,dp5,dp5);
         lv.addView(iv);//to add image view
     }
-    int getThemeID() {
-        try {
-            Class<?> wrapper = Context.class;
-            Method method = wrapper.getMethod("getThemeResId");
-            method.setAccessible(true);
-            return (Integer) method.invoke(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        onStop();
+        if(bp)
+            super.onBackPressed();
+        else
+
+            Toast.makeText(this,"Press back once more to exit",Toast.LENGTH_SHORT).show();
+        bp=true;
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                bp=false;
+            }
+        },5000);
     }
 }

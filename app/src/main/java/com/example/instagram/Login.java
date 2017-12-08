@@ -3,6 +3,7 @@ package com.example.instagram;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -33,6 +34,8 @@ import java.security.AuthProvider;
 import java.util.concurrent.TimeUnit;
 
 import static android.widget.Toast.LENGTH_SHORT;
+import static com.example.instagram.MainActivity.PREFS_NAME;
+import static com.example.instagram.MainActivity.PREFS_THEME;
 import static com.example.instagram.R.id.mobile;
 import static com.example.instagram.R.id.otp;
 import static com.example.instagram.R.id.otp_submit;
@@ -49,15 +52,9 @@ public class Login extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        try {
-        FileInputStream fis = openFileInput(themeFile);
-        BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-        String str = br.readLine();
-        dark = Boolean.valueOf(str);
-        fis.close();
-    } catch (java.io.IOException e) {
-        e.printStackTrace();
-    }//reads file for theme data
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME,MODE_PRIVATE);
+        if(prefs.contains(PREFS_THEME))
+            dark = prefs.getBoolean(PREFS_THEME,true);
         if(!dark)
             setTheme(R.style.AppTheme_Light);
         else
@@ -142,8 +139,7 @@ public class Login extends Activity {
                         if(task.isSuccessful())
                         {
                             Toast.makeText(Login.this,"Mobile Number verified. Signing in...", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(Login.this,MainActivity.class);
-                            startActivity(intent);
+                            finish();
                         }
                         else
                         {
@@ -175,15 +171,5 @@ public class Login extends Activity {
         Button sign = (Button)findViewById(R.id.signIn);
         Toast.makeText(Login.this,"We are facing issues at our server. Try again Later or contact the developer.",Toast.LENGTH_LONG).show();
         sign.setText("Try Again");
-    }
-    @Override
-    public void onStart()
-    {
-        super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser!=null) {
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-        }
     }
 }

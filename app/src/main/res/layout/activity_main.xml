@@ -7,7 +7,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/top">
+        android:id="@+id/top"
+        android:elevation="10dp">
         <ImageView
             android:layout_width="250dip"
             android:layout_height="40dip"
@@ -44,7 +45,8 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:elevation="5dp">
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -84,7 +86,8 @@
         android:layout_height="match_parent"
         android:layout_below="@id/stories"
         android:layout_above="@id/bottom"
-        android:layout_centerVertical="true">
+        android:layout_centerVertical="true"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -97,7 +100,8 @@
         android:id="@+id/bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:weightSum="4">
+        android:weightSum="4"
+        android:elevation="10dp">
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
